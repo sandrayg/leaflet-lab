@@ -1,47 +1,47 @@
 //initialize function called when the script loads
 function initialize(){
-    cities();
+    jQueryAjax();//loads GeoJSON file into the DOM
 };
 
-//function to create a table with cities and their populations
-function cities(){
-    //define two arrays for cities and population
-    var cityPop = [
-        {
-            city: 'Nanjing',
-            population: 8230000
-        },
-        {
-            city: 'Los Angeles',
-            population: 3884307
-        },
-        {
-            city: 'Barcelona',
-            population: 1604555
-        },
-        {
-            city: 'Paris',
-            population: 2229621
+function jQueryAjax(){
+    //basic jQuery ajax method
+    $.ajax("data/MegaCities.geojson", {
+        dataType: "json",
+        success: function(response){
+            mydata = response;
+
+            //check the data
+            console.log(mydata);
         }
-    ];
+    });
 
-    //append the table element to the div
-    $("#mydiv").append("<table>");
+    //check the data
+    console.log(response); //undefined
 
-    //append a header row to the table
-    $("table").append("<tr>");
-
-    //add the "City" and "Population" columns to the header row
-    $("tr").append("<th>City</th><th>Population</th>");
-
-    //loop to add a new row for each city
-    for (var i = 0; i < cityPop.length; i++){
-        //assign longer html strings to a variable
-        var rowHtml = "<tr><td>" + cityPop[i].city + "</td><td>" + cityPop[i].population + "</td></tr>";
-        //add the row's html string to the table
-        $("table").append(rowHtml);
-    };
 };
 
+//  debug exercise
+function debugCallback(response){ //define function
+
+	$("#mydiv").append('<br>GeoJSON data:</br> ' + JSON.stringify(mydata));
+}; //tag ID corrected; append geojson data, as string, in the text of div element
+
+function debugAjax(){
+
+	var mydata;
+
+	$.ajax("data/MegaCities.geojson", { //read geojson file using jQuery.Ajax
+		dataType: "json",
+		success: function(response){ //anonymous callback function when loading is successful
+			mydata = response; //added line; assign response (geojson file) to variable 'mydata'
+			debugCallback(mydata); //calls function that was defined before
+		}
+	});
+
+	// $(mydiv).append('<br>GeoJSON data:</br>' + JSON.stringify(mydata));
+};
+
+// $(mydiv).append('GeoJSON data: ' + JSON.stringify(mydata));
 //call the initialize function when the document has loaded
 $(document).ready(initialize);
+$(document).ready(debugAjax);
