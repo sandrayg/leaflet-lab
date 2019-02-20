@@ -19,8 +19,8 @@ function createMap(){
 
 // retrieve the MegaCities data and place it on the map as circle markers
 function getData(map){
-    //load my data, which contain 153 point features (countries)
-    $.ajax("data/lab1_data.geojson", {
+    //load the data
+    $.ajax("data/MegaCities.geojson", {
             dataType: "json",
             success: function(response){
                 //create marker options
