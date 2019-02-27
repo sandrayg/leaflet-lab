@@ -3,7 +3,7 @@
 //function to instantiate the Leaflet map
 function createMap(){
     //create the map
-    var map = L.map('map', {
+    var mymap = L.map('mapid', {
         center: [20, 0],
         zoom: 2
     });
@@ -11,15 +11,15 @@ function createMap(){
     //add OSM base tilelayer
     L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap contributors</a>'
-    }).addTo(map);
+    }).addTo(mymap);
 
     //call getData function
-    getData(map);
+    getData(mymap);
 };
 //calculate the radius of each proportional symbol
 function calcRadius(attValue) {
     //scale factor to adjust symbol size evenly
-    var scaleFactor = 100;
+    var scaleFactor = 1250;
     //area based on attribute value and scale factor
     var area = attValue * scaleFactor;
     //radius calculated based on area
@@ -29,9 +29,10 @@ function calcRadius(attValue) {
 };
 
 function pointToLayer(feature, latlng){
-  var attribute = "yr2017";
+  var attribute = "yr2018";
   var year = attribute.slice(2);
-  var geojsonMarkerOptions = { //set the markers style
+  var markerOptions = { //set the markers style
+	  //radius:8,
       fillColor: "#ff7800",
       color: "#000",
       weight: 1,
@@ -39,7 +40,9 @@ function pointToLayer(feature, latlng){
       fillOpacity: 0.8
   };
   var attValue = Number(feature.properties[attribute]); //determine which attribute to be represented by propotional createPropSymbols
-  var attName = Number(feature.properties['Indicator']);
+  var attName = feature.properties.Indicator;
+    console.log(attValue)
+
   markerOptions.radius = calcRadius(attValue); //assign the radius value in the marker option
   var layer = L.circleMarker(latlng, markerOptions);
   //build popup content string
