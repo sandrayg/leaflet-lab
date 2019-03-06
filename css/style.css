@@ -1,2 +1,22 @@
 /* Stylesheet by Yuqi Gao, 2019 */
 #mapid { height: 480px; }
+#panel {
+    width: 26%;
+    padding: 20px;
+    display: inline-block;
+    vertical-align: top;
+    text-align: center;
+    line-height: 42px;
+}
+
+.range-slider {
+    width: 50%;
+}
+
+#forward {
+    float: right;
+}
+
+#reverse {
+    float: left;
+}
