@@ -20,7 +20,7 @@ function createMap(){
 //calculate the radius of each proportional symbol
 function calcRadius(attValue) {
     //scale factor to adjust symbol size evenly
-    var scaleFactor = 1350;
+    var scaleFactor = 1300;
     //area based on attribute value and scale factor
     var area = (attValue-0.15) * scaleFactor; //index adjusted for visual variation
     //radius calculated based on area
@@ -34,7 +34,7 @@ function pointToLayer(feature, latlng, attributes){
   var year = attribute.slice(2);
   var markerOptions = { //set the markers style
 	  //radius:8,
-      fillColor: "#ff7800",
+      fillColor: "#FFB6C1",
       color: "#000",
       weight: 1,
       opacity: 1,
@@ -42,7 +42,7 @@ function pointToLayer(feature, latlng, attributes){
   };
   var attValue = Number(feature.properties[attribute]); //determine which attribute to be represented by propotional createPropSymbols
   var attName = feature.properties.Indicator;
-    console.log(attValue)
+    //console.log(attValue)
 
   markerOptions.radius = calcRadius(attValue); //assign the radius value in the marker option
   var layer = L.circleMarker(latlng, markerOptions);
@@ -57,12 +57,15 @@ function pointToLayer(feature, latlng, attributes){
 };
 
 //Step: Add circle markers for point features to the map
-function createPropSymbols(data, map, attributes){
+function createPropSymbols(data, map, attributes){ //response is passed as data
     //create a Leaflet GeoJSON layer and add it to the map
-    L.geoJson(data, {
+    L.geoJson(data, {		
         pointToLayer: function(feature, latlng){
             return pointToLayer(feature, latlng, attributes);
         }// pointToLayer option  passes along parameters feature and latlng to the anonymous function; add third parameter to pointToLayer() function
+/* 		filter: function(feature,layer){
+			return feature.properties[attribute]>filterMin && feature.properties[attribute] < filterMan
+		} */
     }).addTo(map);
 };
 //Step: Resize proportional symbols according to new attribute values
@@ -72,7 +75,7 @@ function updatePropSymbols(map, attribute){
           var props = layer.feature.properties;//access feature properties
 
           //update each feature's radius based on new attribute values
-          var radius = calcPropRadius(props[attribute]);
+          var radius = calcRadius(props[attribute]);
           layer.setRadius(radius);
 
           //add formatted attribute to panel content string
@@ -86,13 +89,33 @@ function updatePropSymbols(map, attribute){
         };
     });
 };
- funtion filterPropSymbols(data,map, attribute){
+/* function selectPropSymbols(map, attribute){
+    map.eachLayer(function(layer){
+        if (layer.feature && layer.feature.properties[attribute]){
+          var props = layer.feature.properties;//access feature properties
 
+          //update each feature's radius based on new attribute values
+          var radius = calcRadius(props[attribute]);
+          layer.setRadius(radius);
 
- }
+          //add formatted attribute to panel content string
+          var year = attribute.slice(2);
+          var popupContent = "<p><b>Country:</b> " + props.CountryName + "</p><p><b> " + props.Indicator+' in  '+year + ":</b> " + props[attribute] + "</p>";
+
+          //replace the layer popup
+          layer.bindPopup(popupContent, {
+              offset: new L.Point(0,-radius)
+          });
+        };
+    });
+}; */
+/*  function filterPropSymbols(data,map, attribute){
+		createPropSymbols(response, map, attributes);
+
+ } */
 
 //The 5th operator: filter (double ended range slider)
-funtion createFilter(map){
+/* funtion createFilter(map){
   $('#panel').append('<input class="selector">');
   $( ".selector" ).slider({ //initialize the slider
         range: true,
@@ -110,9 +133,9 @@ funtion createFilter(map){
   $( ".selector" ).on( "slide", function( event, ui ) {
     filterPropSymbols
     });
-}
+} */
 // Create new sequence controls (HTML range slider)
-function createSequenceControls(map){
+function createSequenceControls(map, attributes){
     //create range input element (slider)
     $('#panel').append('<input class="range-slider" type="range">');
     //set slider attributes
@@ -161,7 +184,7 @@ function processData(data){
     //push each attribute name into attributes array
     for (var attribute in properties){
         //only take attributes with population values
-        if (attribute.indexOf("yr") <1){  //property name starting with 'yr'
+        if (attribute.indexOf("yr") ==0){  //property name starting with 'yr'
             attributes.push(attribute); //push() method adds new items to the end of an array
         };
     };
@@ -182,9 +205,9 @@ function getData(map){
             var attributes = processData(response);
 
             //call function to create proportional symbols
-            createPropSymbols(response, map);
-            createSequenceControls(map);
-            createFilter(map);
+            createPropSymbols(response, map, attributes);
+            createSequenceControls(map, attributes);
+            // createFilter(map);
         }
     });
 };
