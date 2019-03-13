@@ -19,13 +19,85 @@ function createMap(){
 //calculate the radius of each proportional symbol
 function calcRadius(attValue) {
     //scale factor to adjust symbol size evenly
-    var scaleFactor = 1300;
+    var scaleFactor = 2200;
     //area based on attribute value and scale factor
     var area = (attValue-0.15) * scaleFactor; //index adjusted for visual variation
     //radius calculated based on area
     var radius = Math.sqrt(area/Math.PI);
 
     return radius;
+};
+
+
+
+//function to create legend
+function createLegend(map, attributes){
+    var LegendControl = L.Control.extend({
+        options: {
+            position: 'bottomright'
+        },
+
+        onAdd: function (map) {
+            // create the control container with a particular class name
+            var container = L.DomUtil.create('div', 'legend-control-container');
+
+            //add temporal legend div to container
+            $(container).append('<div id="temporal-legend">');
+			
+
+            //Step 1: start attribute legend svg string
+            var svg = '<svg id="attribute-legend" width="160px" height="160px">';
+            //array of circle names to base loop on
+            var circles = {
+      				max: 20,
+      				mean: 40,
+      				min: 60
+      			};
+            //Step 2: loop to add each circle and text to svg string
+            for (c in circles){
+                //circle string
+                svg += '<circle class="legend-circle" id="' + c + '" fill="#FFB6C1" fill-opacity="0.8" stroke="#000000" cx="55"/>';
+				svg += '<text id="' + c + '-text" x="95" y="' + circles[c] + '"></text>';
+			};
+
+            //close svg string
+            svg += "</svg>";
+            //add attribute legend svg to container
+            $(container).append(svg);
+
+            return container;
+        }
+    });
+
+    map.addControl(new LegendControl());
+
+    updateLegend(map, attributes[0]);
+
+};
+//Update the legend with new attribute
+function updateLegend(map, attribute){
+    //create content for legend
+    var year = attribute.slice(2);
+    var content = "Gender Equality index in " + year;
+
+    //replace legend content
+    $('#temporal-legend').html(content);
+
+    //get the value for circle size in legend
+    var circleValues = getCircleValues(map, attribute);
+	//.log(circleValues)
+    //dynamically assigning the last two circle attributes in main.js
+    for (var key in circleValues){
+       //get the radius
+       var radius = calcRadius(circleValues[key]);
+       //Step 3: assign the cy and r attributes
+       $('#'+key).attr({
+           cy: 60 - radius,
+           r: radius
+       });
+	   $('#'+key+'-text').text(Math.round(circleValues[key]*100)/100);
+
+   };
 };
 //Calculate the max, mean, and min values for a given attribute
 function getCircleValues(map, attribute){
@@ -37,11 +109,11 @@ function getCircleValues(map, attribute){
         //get the attribute value
         if (layer.feature){
           var attributeValue = layer.feature.properties[attribute];
-          attributeValue= attValue=""? 0:Number(attributeValue)
+          attributeValue=""? 0:Number(attributeValue)
           //var attributeValue = Number(layer.feature.properties[attribute]);
 
             //test for min
-            if (attributeValue < min){
+            if (attributeValue < min && attributeValue>0){
                 min = attributeValue;
             };
 
@@ -63,72 +135,6 @@ function getCircleValues(map, attribute){
     };
 };
 
-//function to create legend
-function createLegend(map, attributes){
-    var LegendControl = L.Control.extend({
-        options: {
-            position: 'bottomright'
-        },
-
-        onAdd: function (map) {
-            // create the control container with a particular class name
-            var container = L.DomUtil.create('div', 'legend-control-container');
-
-            //add temporal legend div to container
-            $(container).append('<div id="temporal-legend">')
-
-            //Step 1: start attribute legend svg string
-            var svg = '<svg id="attribute-legend" width="160px" height="60px">';
-            //array of circle names to base loop on
-            var circles = {
-      				max: 20,
-      				mean: 40,
-      				min: 60
-      			};
-
-            //Step 2: loop to add each circle and text to svg string
-            for (var i=0; i<circles.length; i++){
-                //circle string
-                svg += '<circle class="legend-circle" id="' + circles[i] +
-                '" fill="#ff7800" fill-opacity="0.8" stroke="#000000" cx="90"/>';
-            };
-
-            //close svg string
-            svg += "</svg>";
-            //add attribute legend svg to container
-            $(container).append(svg);
-
-            return container;
-        }
-    });
-
-    map.addControl(new LegendControl());
-
-    updateLegend(map, attributes[0]);
-};
-
-//Update the legend with new attribute
-function updateLegend(map, attribute){
-    //create content for legend
-    var year = attribute.slice(2);
-    var content = "Gender Equality index in " + year;
-
-    //replace legend content
-    $('#temporal-legend').html(content);
-
-    //get the value for circle size in legend
-    var circleValues = getCircleValues(map, attribute);
-    //dynamically assigning the last two circle attributes in main.js
-    for (var key in circleValues){
-       //get the radius
-       var radius = calcRadius(circleValues[key]);
-       //Step 3: assign the cy and r attributes
-       $('#'+key).attr({
-           cy: 179 - radius,
-           r: radius
-       });
-   };
-};
 function createPopup(properties, attribute, layer, radius){
     var year = attribute.slice(2);
     var popupContent = "<p><b>Country:</b> " + properties.CountryName + "</p><p><b> " + properties.Indicator +' in  '+ year + ":</b> " + properties[attribute] + "</p>";
@@ -297,7 +303,7 @@ function createSequenceControls(map, attributes){
 };
 function createFilterControls(map,attributes){
  $('#panel').append('<input class="filter-slider" type="range">');
- $('#panel').append('<p> Only show countries with index score below <span id="amt"></span> as of year <span id="yr"></span>.</p>');
+ $('#panel').append('<p> You can slide the bar left to select those countries with more severe gender gap. Only countries with index score below <span id="amt"></span> as of year <span id="yr"></span> are shown on map.</p>');
 $( "#amt" ).text(1)
 $( "#yr" ).text(attributes[0].slice(2))
  $( ".filter-slider" ).attr({ //initialize the slider
