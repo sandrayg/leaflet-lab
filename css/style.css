@@ -1,16 +1,34 @@
 /* Stylesheet by Yuqi Gao, 2019 */
 #mapid {
       height: 480px;
-      width: 80%;
+      width: 100%;
       display: inline-block;
 }
 #panel {
-    width: 21%;
+    width: 400px;
     padding: 20px;
     display: inline-block;
     vertical-align: top;
 }
+.sequence-control-container {
+    width: 350px;
+    height: 30px;
+    background-color: rgba(255,255,255,0.8);
+    padding: 10px;
+    line-height: 45px;
+    text-align: center;
+    border: solid gray 1px;
+}
 
+.legend-control-container{
+    width: 180px;
+    height: 180px;
+    background-color: rgba(255,255,255,0.8);
+    padding: 10px;
+    line-height: 45px;
+    text-align: center;
+    border: solid gray 1px;
+}
 /* #panel {
     width: 26%;
     padding: 20px;
@@ -21,10 +39,10 @@
 } */
 
 .range-slider {
-    width: 50%;
+    width: 200px;
 }
-.selector{
-  width: 50%;
+.filter-slider{
+  width: 200px;
 
 }
 #forward {
@@ -34,4 +52,6 @@
 #reverse {
     float: left;
 }
- #amt { color: #D33; }
+#amt { color: #D33; }
+
+#yr { color: #D33; }
